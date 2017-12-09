@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">UserMobileSystem</string>
+    <string name="emailAddress">Adres e-mail</string>
+    <string name="faultDescription">Opis usterki</string>
+    <string name="reportDefect">Dodaj usterkę</string>
+    <string name="capturePhoto">Zrób zdjęcie</string>
+    <string name="createDefect">Zgłoś usterkę</string>
+
+    <string name="toastDefectReported">Usterka zgłoszona pomyślnie!</string>
+    <string name="toastInvalidEmail">Niepoprawny adres e-mail [5-50]</string>
+    <string name="toastInvalidDescription">Nieprawidłowy opis usterki [5-100]</string>
+    <string name="toastInvalidPhoto">Musisz zrobić zdjęcie</string>
+
+</resources>
