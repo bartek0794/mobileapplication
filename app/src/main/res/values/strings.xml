@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">UserMobileSystem</string>
+    <string name="emailAddress">E-mail</string>
+    <string name="faultDescription">FaultDescription</string>
+</resources>
