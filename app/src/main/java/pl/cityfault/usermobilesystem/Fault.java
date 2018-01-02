@@ -4,16 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
 
-/**
- * Created by Bartek on 2017-10-18.
- */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Fault implements Serializable {
     private Long faultId;
     private String email;
     private String description;
     private Department department;
-    private byte[] photo;
+    private Photo photo;
     private double latitude;
     private double longitude;
 
@@ -48,11 +45,11 @@ public class Fault implements Serializable {
         this.description = description;
     }
 
-    public byte[] getPhoto() {
+    public Photo getPhoto() {
         return photo;
     }
 
-    public void setPhoto(byte[] photo) {
+    public void setPhoto(Photo photo) {
         this.photo = photo;
     }
 

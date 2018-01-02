@@ -10,5 +10,7 @@
     <string name="toastInvalidEmail">Incorrect e-mail field [5-50]</string>
     <string name="toastInvalidDescription">Description must be not empty [5-100]</string>
     <string name="toastInvalidPhoto">You must capture photo</string>
+    <string name="connectionError">Connection failed!</string>
+
 
 </resources>

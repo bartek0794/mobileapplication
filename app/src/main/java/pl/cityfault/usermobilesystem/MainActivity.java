@@ -27,7 +27,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,7 +38,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private final static String createFaultURL = "https://defectsmanagement.herokuapp.com/createFault";
-    private final static String getAllDepartmentsURL = "https://defectsmanagement.herokuapp.com/getAllDepartments";
     private static final int REQUEST_PERMISSIONS = 1;
 
     private EditText email, description;
@@ -47,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RestTemplate restTemplate;
     private Spinner spinnerCity;
 
-    private Department[] departments;
+    private List<String> departments;
     private Fault fault;
 
     private LocationManager locationManager;
@@ -69,19 +67,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
         checkPermission();
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            departments = extras.getStringArrayList("departments");
+        }
+
         getDepartments();
         fault = new Fault();
+
+
+/*        location = getLastKnownLocation();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();*/
     }
 
     private void getDepartments() {
-        ResponseEntity<Department[]> response = restTemplate.getForEntity(getAllDepartmentsURL, Department[].class);
-        departments = response.getBody();
-
-        List<String> departmentsName = new ArrayList<String>();
-        for (int i = 0; i < departments.length; i++) {
-            departmentsName.add(departments[i].getDepartmentName());
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, departmentsName);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, departments);
         spinnerCity.setAdapter(adapter);
     }
 
@@ -103,16 +107,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.reportNewFault:
-                if(isValid()) {
-                    fault.setDescription(description.getText().toString());
-                    fault.setEmail(email.getText().toString());
-                    fault.setDepartment(searchDepartment(spinnerCity.getSelectedItem().toString()));
-                    fault.setLatitude(latitude);
-                    fault.setLongitude(longitude);
-                    restTemplate.postForObject(createFaultURL, fault, Fault.class);
-                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.toastDefectReported), Toast.LENGTH_SHORT).show();
-                    clearFields();
-                    fault = new Fault();
+                if (isValid()) {
+                    if (CheckConnection.isConnectedToServer()) {
+                        fault.setDescription(description.getText().toString());
+                        fault.setEmail(email.getText().toString());
+                        fault.setDepartment(SplashActivity.searchDepartment(spinnerCity.getSelectedItem().toString()));
+                        fault.setLatitude(latitude);
+                        fault.setLongitude(longitude);
+                        restTemplate.postForObject(createFaultURL, fault, Fault.class);
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toastDefectReported), Toast.LENGTH_SHORT).show();
+                        clearFields();
+                        fault = new Fault();
+                    } else {
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.connectionError), Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
             case R.id.capturePhoto:
@@ -124,12 +132,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.langEN:
                 updateResources(this, "en");
                 break;
-       }
+        }
     }
 
     private void dispatchTakePictureIntent() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = new File(Environment.getExternalStorageDirectory()+File.separator + "image.jpg");
+        file = new File(Environment.getExternalStorageDirectory() + File.separator + "image.jpg");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
         startActivityForResult(intent, REQUEST_PERMISSIONS);
     }
@@ -141,17 +149,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
             bmp.compress(Bitmap.CompressFormat.JPEG, 20, stream);
             byte[] byteArray = stream.toByteArray();
-            fault.setPhoto(byteArray);
+            Photo photo = new Photo();
+            photo.setPhoto(byteArray);
+            fault.setPhoto(photo);
         }
-    }
-
-    public Department searchDepartment(String name) {
-        for(int i = 0; i < departments.length; i++) {
-            if(departments[i].getDepartmentName().equals(name)) {
-                return departments[i];
-            }
-        }
-        return new Department();
     }
 
     public void clearFields() {
@@ -168,16 +169,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onLocationChanged(Location location) {
             longitude = location.getLongitude();
             latitude = location.getLatitude();
+            String Text = "My current Latitude = " + latitude + " Longitude = " + longitude;
+            Toast.makeText(getApplicationContext(), Text, Toast.LENGTH_SHORT).show();
+
         }
 
         @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) { }
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+        }
 
         @Override
-        public void onProviderEnabled(String s) { }
+        public void onProviderEnabled(String s) {
+            Toast.makeText(getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
+        }
 
         @Override
-        public void onProviderDisabled(String s) { }
+        public void onProviderDisabled(String s) {
+            Toast.makeText(getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT).show();
+        }
     };
 
     private boolean isValid() {
@@ -201,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean isValidDescription(String description) {
-        return description != null && description.length() >= 5 && description.length() <= 100 ?  true : false;
+        return description != null && description.length() >= 5 && description.length() <= 100 ? true : false;
     }
 
     public void checkPermission() {
@@ -225,29 +234,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_PERMISSIONS);
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         boolean isGranted = true;
-        if(grantResults.length > 0) {
-            for(int i =0; i < grantResults.length; i++) {
-                if(grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+        if (grantResults.length > 0) {
+            for (int i = 0; i < grantResults.length; i++) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                     isGranted = false;
                 }
             }
         }
 
-        if(isGranted) {
-            capturePhotoButton.setEnabled(true);
-            reportFaultButton.setEnabled(true);
-            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-
-        } else {
+        if (!isGranted) {
             capturePhotoButton.setEnabled(false);
             reportFaultButton.setEnabled(false);
         }
@@ -262,4 +261,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
         this.recreate();
     }
+
+    private Location getLastKnownLocation() {
+        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        List<String> providers = locationManager.getProviders(true);
+        Location bestLocation = null;
+        for (String provider : providers) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return null;
+            }
+            Location l = locationManager.getLastKnownLocation(provider);
+            if (l == null) {
+                continue;
+            }
+            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                bestLocation = l;
+            }
+        }
+        return bestLocation;
+    }
+
 }

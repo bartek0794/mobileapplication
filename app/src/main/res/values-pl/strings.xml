@@ -10,5 +10,6 @@
     <string name="toastInvalidEmail">Niepoprawny adres e-mail [5-50]</string>
     <string name="toastInvalidDescription">Nieprawidłowy opis usterki [5-100]</string>
     <string name="toastInvalidPhoto">Musisz zrobić zdjęcie</string>
+    <string name="connectionError">Błąd połączenia z serwerem!</string>
 
 </resources>
