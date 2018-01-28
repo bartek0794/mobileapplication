@@ -2,6 +2,7 @@
     <string name="app_name">UserMobileSystem</string>
     <string name="emailAddress">Adres e-mail</string>
     <string name="faultDescription">Opis usterki</string>
+    <string name="choose_department">Wybierz departament</string>
     <string name="reportDefect">Dodaj usterkę</string>
     <string name="capturePhoto">Zrób zdjęcie</string>
     <string name="createDefect">Zgłoś usterkę</string>

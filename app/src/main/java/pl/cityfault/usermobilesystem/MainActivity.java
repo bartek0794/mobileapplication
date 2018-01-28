@@ -8,7 +8,6 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,6 +23,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -37,24 +37,22 @@ import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private final static String createFaultURL = "https://defectsmanagement.herokuapp.com/createFault";
+    private final static String createFaultURL = "https://defectsmanagement.herokuapp.com/api/createFault";
     private static final int REQUEST_PERMISSIONS = 1;
 
     private EditText email, description;
-    private Button reportFaultButton, capturePhotoButton, langPlButton, langEnButton;
+    private Button reportFaultButton, capturePhotoButton;
+    private ImageButton langPlButton, langEnButton;
     private RestTemplate restTemplate;
     private Spinner spinnerCity;
 
     private List<String> departments;
     private Fault fault;
 
-    private LocationManager locationManager;
-    private Location location;
-
     private File file;
 
-    private double longitude;
-    private double latitude;
+    private double longitude = 0;
+    private double latitude = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,12 +74,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getDepartments();
         fault = new Fault();
 
-
-/*        location = getLastKnownLocation();
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();*/
+        if(checkIfAccessFineLocationisAvailable()) {
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (location != null) {
+                longitude = location.getLongitude();
+                latitude = location.getLatitude();
+            }
+        }
     }
 
     private void getDepartments() {
@@ -97,9 +97,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         reportFaultButton.setOnClickListener(this);
         capturePhotoButton = (Button) findViewById(R.id.capturePhoto);
         capturePhotoButton.setOnClickListener(this);
-        langPlButton = (Button) findViewById(R.id.langPL);
+        langPlButton = (ImageButton) findViewById(R.id.langPL);
         langPlButton.setOnClickListener(this);
-        langEnButton = (Button) findViewById(R.id.langEN);
+        langEnButton = (ImageButton) findViewById(R.id.langEN);
         langEnButton.setOnClickListener(this);
     }
 
@@ -160,35 +160,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         description.setText("");
     }
 
-    private boolean isLocationEnabled() {
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-    }
-
-    private final LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-            String Text = "My current Latitude = " + latitude + " Longitude = " + longitude;
-            Toast.makeText(getApplicationContext(), Text, Toast.LENGTH_SHORT).show();
-
-        }
-
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
-        }
-
-        @Override
-        public void onProviderEnabled(String s) {
-            Toast.makeText(getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onProviderDisabled(String s) {
-            Toast.makeText(getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT).show();
-        }
-    };
-
     private boolean isValid() {
         if (!isValidEmail(email.getText().toString())) {
             email.setError(getResources().getString(R.string.toastInvalidEmail));
@@ -234,6 +205,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_PERMISSIONS);
         }
     }
+    public boolean checkIfAccessFineLocationisAvailable() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -261,24 +235,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
         this.recreate();
     }
-
-    private Location getLastKnownLocation() {
-        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-        List<String> providers = locationManager.getProviders(true);
-        Location bestLocation = null;
-        for (String provider : providers) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return null;
-            }
-            Location l = locationManager.getLastKnownLocation(provider);
-            if (l == null) {
-                continue;
-            }
-            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                bestLocation = l;
-            }
-        }
-        return bestLocation;
-    }
-
 }

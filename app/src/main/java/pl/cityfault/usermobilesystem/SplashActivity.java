@@ -1,25 +1,20 @@
 package pl.cityfault.usermobilesystem;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
-import android.widget.Toast;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 
 public class SplashActivity extends Activity implements OnTaskCompleted {
 
     private final int SPLASH_DISPLAY_LENGHT = 3000;
-    private final static String getAllDepartmentsURL = "https://defectsmanagement.herokuapp.com/getAllDepartments";
+    private final static String getAllDepartmentsURL = "https://defectsmanagement.herokuapp.com/api/getAllDepartments";
     private static Department[] departments;
 
     RestTemplate restTemplate;
@@ -35,7 +30,6 @@ public class SplashActivity extends Activity implements OnTaskCompleted {
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
         departmentsName = new ArrayList<String>();
         new CheckConnection(SplashActivity.this, SplashActivity.this).execute();
-
     }
 
     @Override
@@ -74,6 +68,4 @@ public class SplashActivity extends Activity implements OnTaskCompleted {
         }
         return new Department();
     }
-
-
 }
