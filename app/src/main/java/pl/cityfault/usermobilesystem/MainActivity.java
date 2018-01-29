@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private final static String createFaultURL = "https://defectsmanagement.herokuapp.com/api/createFault";
+    private final static String createFaultURL = "https://defectsmanagement.herokuapp.com/api/createDefect";
     private static final int REQUEST_PERMISSIONS = 1;
 
     private EditText email, description;
