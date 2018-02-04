@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">UserMobileSystem</string>
     <string name="emailAddress">E-mail address</string>
+    <string name="title">Defect title</string>
     <string name="faultDescription">Defect description</string>
     <string name="choose_department">Choose department</string>
     <string name="reportDefect">Report a new defect</string>
@@ -10,6 +11,7 @@
     <string name="toastDefectReported">Defect reported successfully!</string>
     <string name="toastInvalidEmail">Incorrect e-mail field [5-50]</string>
     <string name="toastInvalidDescription">Description must be not empty [5-100]</string>
+    <string name="toastInvalidTitle">Title must be not empty [5-50]</string>
     <string name="toastInvalidPhoto">You must capture photo</string>
     <string name="connectionError">Connection failed!</string>
 </resources>

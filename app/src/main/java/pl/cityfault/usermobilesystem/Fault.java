@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class Fault implements Serializable {
     private Long faultId;
     private String email;
+    private String title;
     private String description;
     private Department department;
     private Photo photo;
@@ -67,5 +68,13 @@ public class Fault implements Serializable {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

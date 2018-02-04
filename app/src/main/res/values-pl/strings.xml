@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">UserMobileSystem</string>
     <string name="emailAddress">Adres e-mail</string>
+    <string name="title">Tytuł usterki</string>
     <string name="faultDescription">Opis usterki</string>
     <string name="choose_department">Wybierz departament</string>
     <string name="reportDefect">Dodaj usterkę</string>
@@ -10,6 +11,7 @@
     <string name="toastDefectReported">Usterka zgłoszona pomyślnie!</string>
     <string name="toastInvalidEmail">Niepoprawny adres e-mail [5-50]</string>
     <string name="toastInvalidDescription">Nieprawidłowy opis usterki [5-100]</string>
+    <string name="toastInvalidTitle">Nieprawidłowy tytuł usterki [5-50]</string>
     <string name="toastInvalidPhoto">Musisz zrobić zdjęcie</string>
     <string name="connectionError">Błąd połączenia z serwerem!</string>
 

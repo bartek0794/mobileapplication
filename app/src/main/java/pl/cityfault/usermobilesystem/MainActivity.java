@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final static String createFaultURL = "https://defectsmanagement.herokuapp.com/api/createDefect";
     private static final int REQUEST_PERMISSIONS = 1;
 
-    private EditText email, description;
+    private EditText email, description, title;
     private Button reportFaultButton, capturePhotoButton;
     private ImageButton langPlButton, langEnButton;
     private RestTemplate restTemplate;
@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initializeComponents() {
         spinnerCity = (Spinner) findViewById(R.id.chooseDepartment);
         email = (EditText) findViewById(R.id.emailAddressInput);
+        title = (EditText) findViewById(R.id.titleInput);
         description = (EditText) findViewById(R.id.faultDescriptionInput);
         reportFaultButton = (Button) findViewById(R.id.reportNewFault);
         reportFaultButton.setOnClickListener(this);
@@ -110,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (isValid()) {
                     if (CheckConnection.isConnectedToServer()) {
                         fault.setDescription(description.getText().toString());
+                        fault.setTitle(title.getText().toString());
                         fault.setEmail(email.getText().toString());
                         fault.setDepartment(SplashActivity.searchDepartment(spinnerCity.getSelectedItem().toString()));
                         fault.setLatitude(latitude);
@@ -158,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void clearFields() {
         email.setText("");
         description.setText("");
+        title.setText("");
     }
 
     private boolean isValid() {
@@ -167,6 +170,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (!isValidDescription(description.getText().toString())) {
             description.setError(getResources().getString(R.string.toastInvalidDescription));
+            return false;
+        }
+        if (!isValidTitle(title.getText().toString())) {
+            title.setError(getResources().getString(R.string.toastInvalidTitle));
             return false;
         }
         if (fault.getPhoto() == null) {
@@ -182,6 +189,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean isValidDescription(String description) {
         return description != null && description.length() >= 5 && description.length() <= 100 ? true : false;
+    }
+
+    private boolean isValidTitle(String title) {
+        return title != null && title.length() >= 5 && title.length() <= 50 ? true : false;
     }
 
     public void checkPermission() {
